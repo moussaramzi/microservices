@@ -28,46 +28,6 @@ public class RecipeService {
         return recipeRepository.findAll();
     }
 
-    public Optional<Recipe> getRecipeById(Long id) {
-        return recipeRepository.findById(id);
-    }
-
-    public Recipe createRecipe(RecipeDto recipeDto) {
-        Recipe recipe = new Recipe();
-        recipe.setTitle(recipeDto.getTitle());
-        recipe.setDescription(recipeDto.getDescription());
-        recipe.setIngredients(recipeDto.getIngredients());
-        recipe.setSteps(recipeDto.getSteps());
-        recipe.setAuthorId(recipeDto.getAuthorId());
-        recipe.setCategory(recipeDto.getCategory());
-        recipe.setTags(recipeDto.getTags());
-        recipe.setCreatedAt(LocalDateTime.now());
-        recipe.setUpdatedAt(LocalDateTime.now());
-        return recipeRepository.save(recipe);
-    }
-
-    public Recipe updateRecipe(Long id, RecipeDto recipeDto) {
-        Optional<Recipe> existing = recipeRepository.findById(id);
-        if (existing.isPresent()) {
-            Recipe recipe = existing.get();
-            recipe.setTitle(recipeDto.getTitle());
-            recipe.setDescription(recipeDto.getDescription());
-            recipe.setIngredients(recipeDto.getIngredients());
-            recipe.setSteps(recipeDto.getSteps());
-            recipe.setAuthorId(recipeDto.getAuthorId());
-            recipe.setCategory(recipeDto.getCategory());
-            recipe.setTags(recipeDto.getTags());
-            recipe.setUpdatedAt(LocalDateTime.now());
-            return recipeRepository.save(recipe);
-        } else {
-            return null;
-        }
-    }
-
-    public void deleteRecipe(Long id) {
-        recipeRepository.deleteById(id);
-    }
-
     public List<Recipe> findByCategory(String category) {
         return recipeRepository.findByCategory(category);
     }
@@ -76,25 +36,63 @@ public class RecipeService {
         return recipeRepository.findByTags(tag);
     }
 
-    /**
-     * Returns a RecipeResponseDto with author details fetched from UserService.
-     */
     public Optional<RecipeResponseDto> getRecipeWithAuthor(Long id) {
-        Optional<Recipe> optRecipe = recipeRepository.findById(id);
-        if (optRecipe.isEmpty()) {
-            return Optional.empty();
-        }
-        Recipe recipe = optRecipe.get();
+        return recipeRepository.findById(id)
+                .map(recipe -> {
+                    UserDto userDto = fetchUserById(recipe.getAuthorId());
+                    return mapToResponseDto(recipe, userDto);
+                });
+    }
 
-        // Fetch user data from the UserService using WebClient
-        UserDto userDto = webClient.get()
-                .uri(userServiceBaseUrl + "/{id}", recipe.getAuthorId())
+    public Recipe createRecipe(RecipeDto recipeDto) {
+        Recipe recipe = mapDtoToRecipe(recipeDto);
+        return recipeRepository.save(recipe);
+    }
+
+    public Recipe updateRecipe(Long id, RecipeDto recipeDto) {
+        return recipeRepository.findById(id)
+                .map(existingRecipe -> {
+                    updateRecipeFromDto(existingRecipe, recipeDto);
+                    return recipeRepository.save(existingRecipe);
+                })
+                .orElse(null);
+    }
+
+    public void deleteRecipe(Long id) {
+        recipeRepository.deleteById(id);
+    }
+
+    private UserDto fetchUserById(String userId) {
+        return webClient.get()
+                .uri(userServiceBaseUrl + "/{id}", userId)
                 .retrieve()
                 .bodyToMono(UserDto.class)
                 .block();
+    }
 
+    private Recipe mapDtoToRecipe(RecipeDto dto) {
+        Recipe recipe = new Recipe();
+        recipe.setTitle(dto.getTitle());
+        recipe.setDescription(dto.getDescription());
+        recipe.setIngredients(dto.getIngredients());
+        recipe.setSteps(dto.getSteps());
+        recipe.setAuthorId(dto.getAuthorId());
+        recipe.setCategory(dto.getCategory());
+        recipe.setTags(dto.getTags());
+        recipe.setCreatedAt(LocalDateTime.now());
+        recipe.setUpdatedAt(LocalDateTime.now());
+        return recipe;
+    }
 
-        return Optional.of(mapToResponseDto(recipe, userDto));
+    private void updateRecipeFromDto(Recipe recipe, RecipeDto dto) {
+        recipe.setTitle(dto.getTitle());
+        recipe.setDescription(dto.getDescription());
+        recipe.setIngredients(dto.getIngredients());
+        recipe.setSteps(dto.getSteps());
+        recipe.setAuthorId(dto.getAuthorId());
+        recipe.setCategory(dto.getCategory());
+        recipe.setTags(dto.getTags());
+        recipe.setUpdatedAt(LocalDateTime.now());
     }
 
     private RecipeResponseDto mapToResponseDto(Recipe recipe, UserDto userDto) {

@@ -30,33 +30,18 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUserById(@PathVariable String id) {
         return userService.getUserById(id)
-                .map(user -> {
-                    UserDto dto = mapUserToDto(user);
-                    return ResponseEntity.ok(dto);
-                })
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping
     public ResponseEntity<List<UserDto>> getAllUsers() {
-        List<UserDto> dtos = userService.getAllUsers().stream()
-                .map(this::mapUserToDto)
-                .toList();
-        return ResponseEntity.ok(dtos);
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    private UserDto mapUserToDto(User user) {
-        UserDto dto = new UserDto();
-        dto.setId(user.getId());
-        dto.setUsername(user.getUsername());
-        dto.setEmail(user.getEmail());
-        dto.setProfilePicture(user.getProfilePicture());
-        dto.setBio(user.getBio());
-        // Exclude password or any sensitive fields
-        return dto;
-    }
 
 }

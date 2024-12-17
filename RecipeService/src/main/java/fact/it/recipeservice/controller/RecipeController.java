@@ -31,7 +31,6 @@ public class RecipeController {
         }
     }
 
-    // Modified endpoint to return combined data
     @GetMapping("/{id}")
     public ResponseEntity<RecipeResponseDto> getRecipeById(@PathVariable Long id) {
         return recipeService.getRecipeWithAuthor(id)
@@ -41,18 +40,13 @@ public class RecipeController {
 
     @PostMapping
     public ResponseEntity<Recipe> createRecipe(@RequestBody RecipeDto recipeDto) {
-        Recipe created = recipeService.createRecipe(recipeDto);
-        return ResponseEntity.ok(created);
+        return ResponseEntity.ok(recipeService.createRecipe(recipeDto));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Recipe> updateRecipe(@PathVariable Long id, @RequestBody RecipeDto recipeDto) {
         Recipe updated = recipeService.updateRecipe(id, recipeDto);
-        if (updated != null) {
-            return ResponseEntity.ok(updated);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{id}")
