@@ -5,9 +5,6 @@ import fact.it.userservice.model.User;
 import fact.it.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -16,32 +13,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
 
-    @Bean
-    public CommandLineRunner loadUserData(UserRepository userRepository) {
-        return args -> {
-            if (userRepository.count() == 0) {
-                User user1 = new User();
-                user1.setUsername("john_doe");
-                user1.setEmail("john.doe@example.com");
-                user1.setPassword("password123");
-                user1.setProfilePicture("https://example.com/john.jpg");
-                user1.setBio("I love cooking!");
-                user1.setCreatedAt(LocalDateTime.now());
-                user1.setUpdatedAt(LocalDateTime.now());
-
-                User user2 = new User();
-                user2.setUsername("jane_doe");
-                user2.setEmail("jane.doe@example.com");
-                user2.setPassword("password456");
-                user2.setProfilePicture("https://example.com/jane.jpg");
-                user2.setBio("Baking enthusiast.");
-                user2.setCreatedAt(LocalDateTime.now());
-                user2.setUpdatedAt(LocalDateTime.now());
-
-                userRepository.saveAll(List.of(user1, user2));
-            }
-        };
-    }
 
     private final UserRepository userRepository;
 
