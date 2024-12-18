@@ -9,7 +9,10 @@ import fact.it.commentservice.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import fact.it.commentservice.model.Comment;
+import fact.it.commentservice.repository.CommentRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +21,29 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CommentService {
+
+    @Bean
+    public CommandLineRunner loadCommentData(CommentRepository commentRepository) {
+        return args -> {
+            if (commentRepository.count() == 0) {
+                Comment comment1 = new Comment();
+                comment1.setUserId("1");
+                comment1.setRecipeId("1");
+                comment1.setContent("This recipe is amazing! My family loved it.");
+                comment1.setCreatedAt(LocalDateTime.now());
+                comment1.setUpdatedAt(LocalDateTime.now());
+
+                Comment comment2 = new Comment();
+                comment2.setUserId("2");
+                comment2.setRecipeId("2");
+                comment2.setContent("Best chocolate cake I've ever made!");
+                comment2.setCreatedAt(LocalDateTime.now());
+                comment2.setUpdatedAt(LocalDateTime.now());
+
+                commentRepository.saveAll(List.of(comment1, comment2));
+            }
+        };
+    }
 
     private final CommentRepository commentRepository;
     private final WebClient webClient;

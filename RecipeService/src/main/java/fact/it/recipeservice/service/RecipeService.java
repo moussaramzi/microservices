@@ -9,7 +9,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import fact.it.recipeservice.model.Recipe;
+import fact.it.recipeservice.repository.RecipeRepository;
+import java.util.Arrays;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +21,37 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class RecipeService {
+
+    @Bean
+    public CommandLineRunner loadRecipeData(RecipeRepository recipeRepository) {
+        return args -> {
+            if (recipeRepository.count() == 0) {
+                Recipe recipe1 = new Recipe();
+                recipe1.setTitle("Spaghetti Carbonara");
+                recipe1.setDescription("A classic Italian pasta dish.");
+                recipe1.setIngredients(Arrays.asList("Spaghetti", "Eggs", "Parmesan Cheese", "Pancetta", "Black Pepper"));
+                recipe1.setSteps(Arrays.asList("Boil pasta", "Fry pancetta", "Mix eggs and cheese", "Combine all ingredients"));
+                recipe1.setAuthorId("1");
+                recipe1.setCategory("Pasta");
+                recipe1.setTags(Arrays.asList("Italian", "Quick"));
+                recipe1.setCreatedAt(LocalDateTime.now());
+                recipe1.setUpdatedAt(LocalDateTime.now());
+
+                Recipe recipe2 = new Recipe();
+                recipe2.setTitle("Chocolate Cake");
+                recipe2.setDescription("A rich and moist chocolate cake.");
+                recipe2.setIngredients(Arrays.asList("Flour", "Cocoa Powder", "Eggs", "Butter", "Sugar"));
+                recipe2.setSteps(Arrays.asList("Mix ingredients", "Bake in oven", "Let it cool"));
+                recipe2.setAuthorId("2");
+                recipe2.setCategory("Dessert");
+                recipe2.setTags(Arrays.asList("Baking", "Sweet"));
+                recipe2.setCreatedAt(LocalDateTime.now());
+                recipe2.setUpdatedAt(LocalDateTime.now());
+
+                recipeRepository.saveAll(List.of(recipe1, recipe2));
+            }
+        };
+    }
 
     private final RecipeRepository recipeRepository;
     private final WebClient webClient; // Use WebClient instead of RestTemplate
