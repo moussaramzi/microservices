@@ -99,7 +99,7 @@ jobs:
           distribution: adopt
 
       - name: Build, test, and package project
-        working-directory: ./api-gateway
+        working-directory: ./Api-gateway
         run: mvn package
 
       - name: Docker login
