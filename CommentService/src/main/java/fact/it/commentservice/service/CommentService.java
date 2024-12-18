@@ -6,12 +6,14 @@ import fact.it.commentservice.dto.RecipeDto;
 import fact.it.commentservice.dto.UserDto;
 import fact.it.commentservice.model.Comment;
 import fact.it.commentservice.repository.CommentRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import fact.it.commentservice.repository.CommentRepository;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +25,28 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final WebClient webClient;
+
+
+    @PostConstruct
+    public void loadData() {
+        if (commentRepository.count() == 0) {
+            Comment comment1 = new Comment();
+            comment1.setUserId("1");
+            comment1.setRecipeId("1");
+            comment1.setContent("This recipe is amazing!");
+            comment1.setCreatedAt(LocalDateTime.now());
+            comment1.setUpdatedAt(LocalDateTime.now());
+
+            Comment comment2 = new Comment();
+            comment2.setUserId("2");
+            comment2.setRecipeId("2");
+            comment2.setContent("Loved the curry, very flavorful.");
+            comment2.setCreatedAt(LocalDateTime.now());
+            comment2.setUpdatedAt(LocalDateTime.now());
+
+            commentRepository.saveAll(List.of(comment1, comment2));
+        }
+    }
 
     private final String userServiceBaseUrl = "http://localhost:8080/users";
     private final String recipeServiceBaseUrl = "http://localhost:8082/api/recipes";

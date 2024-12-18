@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # MongoDB for User and Comment Services
   mongodb:
@@ -45,11 +43,9 @@ services:
     ports:
       - "8082:8082"
     environment:
-      - MYSQL_DB_HOST=mysql
-      - MYSQL_DB_PORT=3306
-      - MYSQL_DB_USERNAME=root
-      - MYSQL_DB_PASSWORD=abc123
-      - SERVER_PORT=8082
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/recipe_platform_db?createDatabaseIfNotExist=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=abc123
     depends_on:
       - mysql
 
@@ -76,10 +72,10 @@ services:
     ports:
       - "8083:8083"
     environment:
-      - USER_SERVICE_BASEURL=user-service:8080
-      - RECIPE_SERVICE_BASEURL=recipe-service:8082
-      - COMMENT_SERVICE_BASEURL=comment-service:8081
-      - SERVER_PORT=8083
+      USER_SERVICE_BASEURL: user-service:8080
+      RECIPE_SERVICE_BASEURL: recipe-service:8082
+      COMMENT_SERVICE_BASEURL: comment-service:8081
+      SERVER_PORT: 8083
     depends_on:
       - user-service
       - recipe-service
