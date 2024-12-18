@@ -32,6 +32,7 @@ services:
       - "8080:8080"
     environment:
       - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/user-service
+      - SERVER_PORT=8080
     depends_on:
       - mongodb
 
@@ -44,9 +45,11 @@ services:
     ports:
       - "8082:8082"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/recipe_platform_db?createDatabaseIfNotExist=true
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=abc123
+      - MYSQL_DB_HOST=mysql
+      - MYSQL_DB_PORT=3306
+      - MYSQL_DB_USERNAME=root
+      - MYSQL_DB_PASSWORD=abc123
+      - SERVER_PORT=8082
     depends_on:
       - mysql
 
@@ -60,6 +63,7 @@ services:
       - "8081:8081"
     environment:
       - SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/comment-service
+      - SERVER_PORT=8081
     depends_on:
       - mongodb
 
@@ -70,7 +74,12 @@ services:
       dockerfile: Dockerfile
     container_name: api-gateway
     ports:
-      - "8083:8080"
+      - "8083:8083"
+    environment:
+      - USER_SERVICE_BASEURL=user-service:8080
+      - RECIPE_SERVICE_BASEURL=recipe-service:8082
+      - COMMENT_SERVICE_BASEURL=comment-service:8081
+      - SERVER_PORT=8083
     depends_on:
       - user-service
       - recipe-service
